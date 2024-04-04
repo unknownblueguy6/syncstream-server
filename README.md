@@ -1,10 +1,10 @@
-# go-template
+# syncstream-server
 
-An initial template repository for a Go project
+A Golang webserver to sync video stream state among connected clients.
 
 ## Prerequisites
 
-* Install the `golang` compiler from the [official source](https://go.dev) (version 1.21.3)
+* Install the `golang` compiler from the [official source](https://go.dev) (version 1.22.1)
 * Include $GOPATH in your path via `export PATH=$PATH:$(go env GOPATH)/bin`
 * Adding the above to your `~/.bashrc` file will require `source ~/.bashrc`
 
@@ -16,7 +16,7 @@ go run main.go
 ## Introduction
 
 ### Tools
-1. Language: Golang@1.21.3
+1. Language: Golang@1.22.1
 2. Package Management Tool: go mod
 3. Code Format Tool: golangci-lint@1.55.2
 4. Static Analysis Tool: golangci-lint@1.55.2
