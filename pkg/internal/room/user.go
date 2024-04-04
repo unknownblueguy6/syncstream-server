@@ -8,6 +8,14 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type RoomUser struct {
+	id      uuid.UUID
+	Code    RoomCode
+	Events  chan *Event
+	Conn    *websocket.Conn
+	Manager *RoomManager
+}
+
 func NewRoomUser(id uuid.UUID, code RoomCode, conn *websocket.Conn, manager *RoomManager) *RoomUser {
 	return &RoomUser{
 		id:      id,

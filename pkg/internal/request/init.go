@@ -4,10 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"syncstream-server/pkg/internal/response"
 
 	"github.com/google/uuid"
 )
+
+type InitRequestBody struct {
+	// ID room.UUID `json:"id"`
+}
+
+type InitResponseBody struct {
+	ID uuid.UUID `json:"id"`
+	// bearerAuth string
+}
 
 func InitHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
@@ -17,7 +25,7 @@ func InitHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		resBody := response.InitResponseBody{ID: uuid.New()}
+		resBody := InitResponseBody{ID: uuid.New()}
 		fmt.Println(*r, resBody)
 		err = json.NewEncoder(w).Encode(resBody)
 		if err != nil {

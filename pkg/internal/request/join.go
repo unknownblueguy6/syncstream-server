@@ -4,11 +4,24 @@ import (
 	"fmt"
 	"net/http"
 	"syncstream-server/pkg/internal/room"
+	"syncstream-server/pkg/internal/stream"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
+
+type JoinTokenRequestBody struct {
+	ID   uuid.UUID     `json:"id"`
+	Code room.RoomCode `json:"code"`
+}
+
+type JoinResponseBody struct {
+	URL           string               `json:"url"`
+	StreamState   stream.StreamState   `json:"streamState"`
+	StreamElement stream.StreamElement `json:"streamElement"`
+	Timestamp     time.Time            `json:"timestamp"`
+}
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {

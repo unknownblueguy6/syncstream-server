@@ -1,6 +1,32 @@
 package room
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
+
+type EventType int
+
+const (
+	ZERO EventType = iota
+	PLAY
+	PAUSE
+	SEEK
+	USER_JOIN
+	USER_LEFT
+	MESSAGE
+	ROOM_STATE
+)
+
+const EVENT_BUFFER_SIZE = 10
+
+type Event struct {
+	SourceID  uuid.UUID      `json:"sourceID"`
+	Timestamp time.Time      `json:"timestamp"`
+	Type      EventType      `json:"type"`
+	Data      map[string]any `json:"data"`
+}
 
 func (e *Event) IsValid(id uuid.UUID) bool {
 	switch {
