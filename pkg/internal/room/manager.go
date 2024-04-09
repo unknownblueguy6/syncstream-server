@@ -1,7 +1,7 @@
 package room
 
 import (
-	"fmt"
+	"log/slog"
 	"syncstream-server/pkg/internal/stream"
 	"time"
 
@@ -37,15 +37,15 @@ func (manager *RoomManager) AddRoom(id uuid.UUID, url string, streamState stream
 }
 
 func (manager *RoomManager) Run() {
-	fmt.Println("Starting Room Manager")
+	slog.Info("Starting Room Manager")
 	for {
 		select {
 		case event, ok := <-manager.Events:
 			if !ok {
-				fmt.Println("RoomManger Events Channel closed")
+				slog.Error("RoomManger Events Channel closed")
 				return
 			}
-			fmt.Println(*event)
+			slog.Debug("manager.Run()", "receivedEvent", *event)
 			var code RoomCode
 			var room *Room
 
@@ -62,6 +62,7 @@ func (manager *RoomManager) Run() {
 
 				event.Data = nil
 
+				slog.Debug("manager.Run() USER_JOIN", "RoomStateEvent", *manager.Map[code].ToEvent(manager.UserIDMap[event.SourceID]))
 				user.Events <- manager.Map[code].ToEvent(manager.UserIDMap[event.SourceID])
 
 			case USER_LEFT:
@@ -79,11 +80,11 @@ func (manager *RoomManager) Run() {
 
 			sourceID := event.SourceID
 			event.SourceID = manager.UserIDMap[event.SourceID]
-
-			fmt.Println(sourceID, event.SourceID)
-
+			slog.Debug("manager.Run()", "orig_id", sourceID, "mapped_id", event.SourceID)
+			slog.Debug("manager.Run()", "sentEvent", *event)
 			for userID := range room.Users {
 				if userID != sourceID {
+					slog.Debug("manager.Run() "+sourceID.String()+" Event", "destinationID", userID)
 					manager.Users[userID].Events <- event
 				}
 			}

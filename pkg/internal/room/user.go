@@ -1,7 +1,7 @@
 package room
 
 import (
-	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -36,17 +36,21 @@ func (user *RoomUser) ReceiveEventsFromClient() {
 		if err != nil {
 
 			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseNoStatusReceived, websocket.CloseAbnormalClosure) {
-				fmt.Println(err)
+				slog.Debug(user.id.String()+" ReceiveEventsFromClient() USER_LEFT", "code", user.Code)
 				user.Manager.Events <- &Event{SourceID: user.id, Timestamp: time.Now(), Type: USER_LEFT, Data: nil}
 			} else {
-				fmt.Println("could not parse to Event Type", err)
+				slog.Error(err.Error())
 			}
 
 			return
 		}
-		fmt.Println(*event)
+
+		slog.Debug(user.id.String()+" ReceiveEventsFromClient()", "receivedEventFromClient", *event)
 		if event.Type != ZERO && event.IsValid(user.id) {
+			slog.Debug(user.id.String()+" ReceiveEventsFromClient()", "validEvent", *event)
 			user.Manager.Events <- event
+		} else {
+			slog.Debug(user.id.String()+" ReceiveEventsFromClient()", "invalidEvent", *event)
 		}
 	}
 }
@@ -60,12 +64,15 @@ func (user *RoomUser) SendEventsToClient() {
 		select {
 		case event, ok := <-user.Events:
 			if !ok {
-				continue
+				slog.Error(user.id.String() + " Events Channel closed")
+				return
 			}
 			err := user.Conn.WriteJSON(event)
 			if err != nil {
+				slog.Error(user.id.String()+" SendEventsToClient()", "error", err.Error(), "event", *event)
 				continue
 			}
+			slog.Debug(user.id.String()+" SendEventsToClient()", "event", *event)
 		default:
 			time.Sleep(100 * time.Millisecond)
 		}

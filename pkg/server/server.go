@@ -2,37 +2,34 @@ package server
 
 import (
 	"flag"
-	"fmt"
+	"log/slog"
 	"net/http"
 
 	"syncstream-server/pkg/internal/request"
 	"syncstream-server/pkg/internal/room"
-	"syncstream-server/pkg/internal/stream"
-
-	"github.com/google/uuid"
 )
 
 var addr = flag.String("addr", "localhost:8080", "Address of Server")
+var debug = flag.Bool("debug", false, "Enable debug logging.")
 
 func Run() {
-	// TODO add error logging
 	// TODO make ci/cd pipeline work
 	// TODO write tests
-
-	id, err := uuid.NewUUID()
-	if err != nil {
-		return
+	flag.Parse()
+	if *debug {
+		slog.SetLogLoggerLevel(slog.LevelDebug)
+		slog.Debug("Debug Logging Enabled")
 	}
-	fmt.Println(id)
-	room.Manager.Map["ABCDEF"] = room.NewRoom(id, "ABCDEF", "http://example.com", stream.StreamState{CurrentTime: 0.0, Paused: false, PlaybackRate: 1.0}, nil)
 	go room.Manager.Run()
 
-	fmt.Println("Starting Server")
-	http.HandleFunc("/init", request.InitHandler)
-	http.HandleFunc("/create", request.CreateHandler)
+	slog.Info("Starting Server at " + *addr)
+	http.HandleFunc("POST /init", request.InitHandler)
+	http.HandleFunc("POST /create", request.CreateHandler)
 	http.HandleFunc("/join", request.JoinHandler)
-	err = http.ListenAndServe(*addr, nil)
+	err := http.ListenAndServe(*addr, nil)
+
 	if err != nil {
+		slog.Error("Unable to start HTTP server")
 		return
 	}
 }

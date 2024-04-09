@@ -2,7 +2,7 @@ package request
 
 import (
 	"encoding/json"
-	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -18,18 +18,22 @@ type InitResponseBody struct {
 }
 
 func InitHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		var reqBody InitRequestBody
-		err := json.NewDecoder(r.Body).Decode(&reqBody)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		resBody := InitResponseBody{ID: uuid.New()}
-		fmt.Println(*r, resBody)
-		err = json.NewEncoder(w).Encode(resBody)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+	var reqBody InitRequestBody
+	err := json.NewDecoder(r.Body).Decode(&reqBody)
+	if err != nil {
+		slog.Error("POST /init", "error", err.Error(), "body", r.Body)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+	slog.Debug("POST /init", "req_body", reqBody)
+
+	resBody := InitResponseBody{ID: uuid.New()}
+	slog.Debug("POST /init", "res_body", resBody)
+
+	err = json.NewEncoder(w).Encode(resBody)
+	if err != nil {
+		slog.Error("POST /init", "error", err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
 }
