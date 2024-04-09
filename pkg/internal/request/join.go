@@ -11,6 +11,9 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// TODO : make this route return ephemeral token for websocket connection
+// TODO : use Get() method on url.Query() to get query params
+
 type JoinTokenRequestBody struct {
 	ID   uuid.UUID     `json:"id"`
 	Code room.RoomCode `json:"code"`

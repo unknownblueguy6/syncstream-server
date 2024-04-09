@@ -28,6 +28,8 @@ type Event struct {
 	Data      map[string]any `json:"data"`
 }
 
+// TODO add validation for the Data field for all possible events
+
 func (e *Event) IsValid(id uuid.UUID) bool {
 	switch {
 	case !(e.Type > ZERO && e.Type <= MESSAGE):

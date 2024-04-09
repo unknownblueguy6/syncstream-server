@@ -15,6 +15,9 @@ import (
 var addr = flag.String("addr", "localhost:8080", "Address of Server")
 
 func Run() {
+	// TODO add error logging
+	// TODO make ci/cd pipeline work
+	// TODO write tests
 
 	id, err := uuid.NewUUID()
 	if err != nil {

@@ -15,6 +15,9 @@ type RoomManager struct {
 	UserIDMap map[uuid.UUID]uuid.UUID
 }
 
+// TODO : make mapped ID persist across disconnects, i.e., a given uuid is always mapped to the same uuid.
+// TODO : update Room state every second
+
 var Manager = &RoomManager{
 	Map:       make(map[RoomCode]*Room),
 	Events:    make(chan *Event),
