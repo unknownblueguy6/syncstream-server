@@ -14,7 +14,6 @@ var debug = flag.Bool("debug", false, "Enable debug logging.")
 
 func Run() {
 	// TODO make ci/cd pipeline work
-	// TODO write tests
 	flag.Parse()
 	if *debug {
 		slog.SetLogLoggerLevel(slog.LevelDebug)
