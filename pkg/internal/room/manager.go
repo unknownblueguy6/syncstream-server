@@ -8,11 +8,18 @@ import (
 	"github.com/google/uuid"
 )
 
+type EphemeralTokenData struct {
+	ID         uuid.UUID
+	Code       RoomCode
+	ExpiryTime time.Time
+}
+
 type RoomManager struct {
 	Map       map[RoomCode]*Room
 	Events    chan *Event
 	Users     map[uuid.UUID]*RoomUser
 	UserIDMap map[uuid.UUID]uuid.UUID
+	Tokens    map[uuid.UUID]EphemeralTokenData
 }
 
 // TODO : make mapped ID persist across disconnects, i.e., a given uuid is always mapped to the same uuid.
@@ -23,6 +30,7 @@ var Manager = &RoomManager{
 	Events:    make(chan *Event),
 	Users:     make(map[uuid.UUID]*RoomUser),
 	UserIDMap: make(map[uuid.UUID]uuid.UUID),
+	Tokens:    make(map[uuid.UUID]EphemeralTokenData),
 }
 
 func (manager *RoomManager) AddRoom(id uuid.UUID, url string, streamState stream.StreamState, streamElement stream.StreamElement) (RoomCode, error) {

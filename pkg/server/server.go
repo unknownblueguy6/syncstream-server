@@ -14,6 +14,7 @@ var debug = flag.Bool("debug", false, "Enable debug logging.")
 
 func Run() {
 	// TODO make ci/cd pipeline work
+	// TODO add validation for all request handlers
 	flag.Parse()
 	if *debug {
 		slog.SetLogLoggerLevel(slog.LevelDebug)
@@ -24,6 +25,7 @@ func Run() {
 	slog.Info("Starting Server at " + *addr)
 	http.HandleFunc("POST /init", request.InitHandler)
 	http.HandleFunc("POST /create", request.CreateHandler)
+	http.HandleFunc("POST /joinToken", request.JoinTokenHandler)
 	http.HandleFunc("/join", request.JoinHandler)
 	err := http.ListenAndServe(*addr, nil)
 

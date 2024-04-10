@@ -64,7 +64,7 @@ func generateRoomCode() RoomCode {
 	return RoomCode(code)
 }
 
-func ParseRoomCode(code string) (RoomCode, error) {
+func ParseRoomCode(code RoomCode) (RoomCode, error) {
 	if len(code) != ROOMCODE_LENGTH {
 		return RoomCode(""), errors.New("invalid RoomCode length")
 	}
