@@ -10,13 +10,13 @@ type EventType int
 
 const (
 	ZERO EventType = iota
+	USER_JOIN
+	USER_LEFT
+	ROOM_STATE
 	PLAY
 	PAUSE
 	SEEK
-	USER_JOIN
-	USER_LEFT
 	MESSAGE
-	ROOM_STATE
 )
 
 const EVENT_BUFFER_SIZE = 10
@@ -32,7 +32,7 @@ type Event struct {
 
 func (e *Event) IsValid(id uuid.UUID) bool {
 	switch {
-	case !(e.Type > ZERO && e.Type <= MESSAGE):
+	case !(e.Type >= PLAY && e.Type <= MESSAGE):
 		return false
 	case id != e.SourceID:
 		return false

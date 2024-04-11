@@ -22,7 +22,6 @@ type RoomManager struct {
 	Tokens    map[uuid.UUID]EphemeralTokenData
 }
 
-// TODO : make mapped ID persist across disconnects, i.e., a given uuid is always mapped to the same uuid.
 // TODO : update Room state every second
 
 var Manager = &RoomManager{
@@ -62,7 +61,9 @@ func (manager *RoomManager) Run() {
 				user := event.Data["user"].(*RoomUser)
 
 				manager.Users[event.SourceID] = user
-				manager.UserIDMap[event.SourceID] = uuid.New()
+				if _, ok := manager.UserIDMap[event.SourceID]; !ok {
+					manager.UserIDMap[event.SourceID] = uuid.New()
+				}
 
 				code = user.Code
 				room = manager.Map[code]
@@ -78,7 +79,6 @@ func (manager *RoomManager) Run() {
 				room = manager.Map[code]
 
 				room.Users[event.SourceID] = false
-				delete(manager.UserIDMap, event.SourceID)
 				delete(manager.Users, event.SourceID)
 
 			default:
@@ -87,7 +87,7 @@ func (manager *RoomManager) Run() {
 			}
 
 			sourceID := event.SourceID
-			event.SourceID = manager.UserIDMap[event.SourceID]
+			event.SourceID = manager.UserIDMap[sourceID]
 			slog.Debug("manager.Run()", "orig_id", sourceID, "mapped_id", event.SourceID)
 			slog.Debug("manager.Run()", "sentEvent", *event)
 			for userID := range room.Users {
