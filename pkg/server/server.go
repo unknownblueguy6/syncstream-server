@@ -13,8 +13,6 @@ var addr = flag.String("addr", "localhost:8080", "Address of Server")
 var debug = flag.Bool("debug", false, "Enable debug logging.")
 
 func Run() {
-	// TODO make ci/cd pipeline work
-	// TODO add validation for all request handlers
 	flag.Parse()
 	if *debug {
 		slog.SetLogLoggerLevel(slog.LevelDebug)

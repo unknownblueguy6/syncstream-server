@@ -7,17 +7,18 @@ import (
 	"net/http"
 	"syncstream-server/pkg/internal/room"
 	"syncstream-server/pkg/internal/stream"
+	"syncstream-server/pkg/internal/valid8r"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 type CreateRequestBody struct {
-	ID            uuid.UUID            `json:"id"`
-	URL           string               `json:"url"`
+	ID            uuid.UUID            `json:"id"  validate:"required,uuid"`
+	URL           string               `json:"url" validate:"required,http_url"`
 	StreamState   stream.StreamState   `json:"streamState"`
 	StreamElement stream.StreamElement `json:"streamElement"`
-	Timestamp     time.Time            `json:"timestamp"`
+	Timestamp     time.Time            `json:"timestamp" validate:"required"`
 }
 
 type CreateResponseBody struct {
@@ -33,6 +34,14 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	slog.Debug("POST /create", "req_body", reqBody)
+
+	if errs := valid8r.Validator.Struct(&reqBody); errs != nil {
+		for _, err := range errs.(valid8r.ValidationErrors) {
+			slog.Error(err.Error())
+		}
+		http.Error(w, errs.Error(), http.StatusBadRequest)
+		return
+	}
 
 	code, err := room.Manager.AddRoom(reqBody.ID, reqBody.URL, reqBody.StreamState, reqBody.StreamElement)
 	if err != nil {

@@ -5,14 +5,15 @@ import (
 	"log/slog"
 	"net/http"
 	"syncstream-server/pkg/internal/room"
+	"syncstream-server/pkg/internal/valid8r"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 type JoinTokenRequestBody struct {
-	ID   uuid.UUID     `json:"id"`
-	Code room.RoomCode `json:"code"`
+	ID   uuid.UUID     `json:"id" validate:"required,uuid"`
+	Code room.RoomCode `json:"code" validate:"required,alpha,uppercase,len=6"`
 }
 
 type JoinTokenResponseBody struct {
@@ -30,18 +31,19 @@ func JoinTokenHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	slog.Debug("POST /joinToken", "req_body", reqBody)
 
-	code, codeErr := room.ParseRoomCode(reqBody.Code)
-
-	if codeErr != nil {
-		slog.Error("POST /joinToken", "error", codeErr.Error())
-		http.Error(w, codeErr.Error(), http.StatusBadRequest)
+	if errs := valid8r.Validator.Struct(&reqBody); errs != nil {
+		for _, err := range errs.(valid8r.ValidationErrors) {
+			slog.Error(err.Error())
+		}
+		http.Error(w, errs.Error(), http.StatusBadRequest)
 		return
 	}
 
+	code := reqBody.Code
 	_, roomOK := room.Manager.Map[code]
 	if !roomOK {
 		slog.Error("POST /joinToken", "error", string(code)+" has not been created.")
-		http.Error(w, string(code)+" has not been created.", http.StatusBadRequest)
+		http.Error(w, string(code)+" has not been created.", http.StatusNotFound)
 		return
 	}
 

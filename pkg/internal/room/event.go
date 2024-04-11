@@ -22,9 +22,9 @@ const (
 const EVENT_BUFFER_SIZE = 10
 
 type Event struct {
-	SourceID  uuid.UUID      `json:"sourceID"`
-	Timestamp time.Time      `json:"timestamp"`
-	Type      EventType      `json:"type"`
+	SourceID  uuid.UUID      `json:"sourceID" validate:"required,uuid"`
+	Timestamp time.Time      `json:"timestamp" validate:"required"`
+	Type      EventType      `json:"type" validate:"required,number"`
 	Data      map[string]any `json:"data"`
 }
 

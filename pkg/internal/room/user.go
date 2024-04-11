@@ -2,6 +2,7 @@ package room
 
 import (
 	"log/slog"
+	"syncstream-server/pkg/internal/valid8r"
 	"time"
 
 	"github.com/google/uuid"
@@ -46,6 +47,14 @@ func (user *RoomUser) ReceiveEventsFromClient() {
 		}
 
 		slog.Debug(user.id.String()+" ReceiveEventsFromClient()", "receivedEventFromClient", *event)
+
+		if errs := valid8r.Validator.Struct(event); errs != nil {
+			for _, err := range errs.(valid8r.ValidationErrors) {
+				slog.Error(err.Error())
+			}
+			return
+		}
+
 		if event.Type != ZERO && event.IsValid(user.id) {
 			slog.Debug(user.id.String()+" ReceiveEventsFromClient()", "validEvent", *event)
 			user.Manager.Events <- event

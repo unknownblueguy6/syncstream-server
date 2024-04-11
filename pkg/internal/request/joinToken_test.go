@@ -49,6 +49,30 @@ func TestJoinTokenHandler(t *testing.T) {
 			},
 		},
 		{
+			name: "Invalid Code",
+			req: joinTokenReqBodyToRequest(JoinTokenRequestBody{
+				ID:   uuid.New(),
+				Code: "ABCDE2",
+			}),
+			_func: func(t *testing.T, rec *httptest.ResponseRecorder) {
+				if rec.Code != http.StatusBadRequest {
+					t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rec.Code)
+				}
+			},
+		},
+		{
+			name: "Room does not exist",
+			req: joinTokenReqBodyToRequest(JoinTokenRequestBody{
+				ID:   uuid.New(),
+				Code: "ABCDEF",
+			}),
+			_func: func(t *testing.T, rec *httptest.ResponseRecorder) {
+				if rec.Code != http.StatusNotFound {
+					t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rec.Code)
+				}
+			},
+		},
+		{
 			name: "Empty Request",
 			req:  httptest.NewRequest(http.MethodPost, "/joinToken", nil),
 			_func: func(t *testing.T, rec *httptest.ResponseRecorder) {

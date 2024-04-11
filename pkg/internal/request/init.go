@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"syncstream-server/pkg/internal/valid8r"
 
 	"github.com/google/uuid"
 )
@@ -26,6 +27,14 @@ func InitHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	slog.Debug("POST /init", "req_body", reqBody)
+
+	if errs := valid8r.Validator.Struct(&reqBody); errs != nil {
+		for _, err := range errs.(valid8r.ValidationErrors) {
+			slog.Error(err.Error())
+		}
+		http.Error(w, errs.Error(), http.StatusBadRequest)
+		return
+	}
 
 	resBody := InitResponseBody{ID: uuid.New()}
 	slog.Debug("POST /init", "res_body", resBody)
