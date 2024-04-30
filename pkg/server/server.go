@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/rs/cors"
+
 	"syncstream-server/pkg/internal/request"
 	"syncstream-server/pkg/internal/room"
 )
@@ -25,7 +27,9 @@ func Run() {
 	http.HandleFunc("POST /create", request.CreateHandler)
 	http.HandleFunc("POST /joinToken", request.JoinTokenHandler)
 	http.HandleFunc("/join", request.JoinHandler)
-	err := http.ListenAndServe(*addr, nil)
+
+	handler := cors.Default().Handler(http.DefaultServeMux)
+	err := http.ListenAndServe(*addr, handler)
 
 	if err != nil {
 		slog.Error("Unable to start HTTP server")
