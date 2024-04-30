@@ -36,9 +36,9 @@ func (user *RoomUser) ReceiveEventsFromClient() {
 		err := user.Conn.ReadJSON(event)
 		if err != nil {
 
-			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseNoStatusReceived, websocket.CloseAbnormalClosure) {
+			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway, websocket.CloseNoStatusReceived, websocket.CloseAbnormalClosure) {
 				slog.Debug(user.id.String()+" ReceiveEventsFromClient() USER_LEFT", "code", user.Code)
-				user.Manager.Events <- &Event{SourceID: user.id, Timestamp: time.Now(), Type: USER_LEFT, Data: nil}
+				user.Manager.Events <- &Event{SourceID: user.id, Timestamp: time.Now().UTC(), Type: USER_LEFT, Data: nil}
 			} else {
 				slog.Error(err.Error())
 			}
@@ -65,7 +65,6 @@ func (user *RoomUser) ReceiveEventsFromClient() {
 }
 
 func (user *RoomUser) SendEventsToClient() {
-	// ticker := time.NewTicker()
 	defer func() {
 		user.Conn.Close()
 	}()
