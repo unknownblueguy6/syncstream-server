@@ -71,6 +71,7 @@ func (manager *RoomManager) Run() {
 
 				event.Data = nil
 
+				room.UpdateStream()
 
 				roomStateEvent := manager.Map[code].ToEvent(mappedID)
 				slog.Debug("manager.Run() USER_JOIN", "RoomStateEvent", *roomStateEvent)
@@ -92,6 +93,11 @@ func (manager *RoomManager) Run() {
 
 			slog.Debug("manager.Run()", "orig_id", sourceID, "mapped_id", mappedID)
 			slog.Debug("manager.Run()", "sentEvent", *event)
+
+			if event.IsStreamEvent() {
+				room.UpdateStreamEvent(event)
+			}
+
 			for userID := range room.Users {
 				if userID != sourceID {
 					slog.Debug("manager.Run() "+sourceID.String()+" Event", "destinationID", userID)

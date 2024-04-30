@@ -47,3 +47,15 @@ func (e *Event) IsValid(id uuid.UUID) bool {
 		return true
 	}
 }
+
+func (e *Event) IsStreamEvent() bool {
+	return e.Type >= PLAY && e.Type <= SEEK
+}
+
+func (e *Event) GetStreamState() StreamState {
+	return StreamState{
+		CurrentTime:  e.Data["currentTime"].(float64),
+		Paused:       e.Data["paused"].(bool),
+		PlaybackRate: e.Data["playbackRate"].(float32),
+	}
+}
