@@ -3,7 +3,6 @@ package room
 import (
 	"errors"
 	"math/rand"
-	"syncstream-server/pkg/internal/stream"
 	"time"
 	"unicode"
 
@@ -11,6 +10,14 @@ import (
 )
 
 type RoomCode string
+
+type StreamState struct {
+	CurrentTime  float64 `json:"currentTime"  validate:"numeric"`
+	Paused       bool    `json:"paused" validate:"boolean"`
+	PlaybackRate float32 `json:"playbackRate" validate:"required,numeric"`
+}
+
+type StreamElement any
 
 const ROOMCODE_LENGTH = 6
 const ROOMCODE_CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -21,11 +28,12 @@ type Room struct {
 	Users         map[uuid.UUID]bool
 	Empty         bool
 	URL           string
-	StreamState   stream.StreamState
-	StreamElement stream.StreamElement
+	StreamState   StreamState
+	StreamElement StreamElement
+	lastUpdate    time.Time
 }
 
-func NewRoom(id uuid.UUID, code RoomCode, url string, ss stream.StreamState, se stream.StreamElement) *Room {
+func NewRoom(id uuid.UUID, code RoomCode, url string, ss StreamState, se StreamElement) *Room {
 	return &Room{
 		Code:          code,
 		creatorID:     id,

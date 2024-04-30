@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"syncstream-server/pkg/internal/room"
-	"syncstream-server/pkg/internal/stream"
 	"testing"
 	"time"
 
@@ -20,7 +19,7 @@ func joinTokenReqBodyToRequest(reqBody JoinTokenRequestBody) *http.Request {
 }
 
 func TestJoinTokenHandler(t *testing.T) {
-	ss := stream.StreamState{
+	ss := room.StreamState{
 		CurrentTime:  314.159,
 		Paused:       true,
 		PlaybackRate: 1.0,

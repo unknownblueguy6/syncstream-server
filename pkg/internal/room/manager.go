@@ -2,7 +2,6 @@ package room
 
 import (
 	"log/slog"
-	"syncstream-server/pkg/internal/stream"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,8 +21,6 @@ type RoomManager struct {
 	Tokens    map[uuid.UUID]EphemeralTokenData
 }
 
-// TODO : update Room state every second
-
 var Manager = &RoomManager{
 	Map:       make(map[RoomCode]*Room),
 	Events:    make(chan *Event),
@@ -32,7 +29,7 @@ var Manager = &RoomManager{
 	Tokens:    make(map[uuid.UUID]EphemeralTokenData),
 }
 
-func (manager *RoomManager) AddRoom(id uuid.UUID, url string, streamState stream.StreamState, streamElement stream.StreamElement) (RoomCode, error) {
+func (manager *RoomManager) AddRoom(id uuid.UUID, url string, streamState StreamState, streamElement StreamElement) (RoomCode, error) {
 	code := generateRoomCode()
 	_, ok := manager.Map[code]
 	for ok {

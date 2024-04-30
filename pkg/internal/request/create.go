@@ -6,7 +6,6 @@ import (
 
 	"net/http"
 	"syncstream-server/pkg/internal/room"
-	"syncstream-server/pkg/internal/stream"
 	"syncstream-server/pkg/internal/valid8r"
 	"time"
 
@@ -14,11 +13,11 @@ import (
 )
 
 type CreateRequestBody struct {
-	ID            uuid.UUID            `json:"id"  validate:"required,uuid"`
-	URL           string               `json:"url" validate:"required,http_url"`
-	StreamState   stream.StreamState   `json:"streamState"`
-	StreamElement stream.StreamElement `json:"streamElement"`
-	Timestamp     time.Time            `json:"timestamp" validate:"required"`
+	ID            uuid.UUID          `json:"id"  validate:"required,uuid"`
+	URL           string             `json:"url" validate:"required,http_url"`
+	StreamState   room.StreamState   `json:"streamState"`
+	StreamElement room.StreamElement `json:"streamElement"`
+	Timestamp     time.Time          `json:"timestamp" validate:"required"`
 }
 
 type CreateResponseBody struct {
