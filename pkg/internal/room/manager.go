@@ -81,7 +81,7 @@ func (manager *RoomManager) Run() {
 				code = manager.Users[sourceID].Code
 				room = manager.Map[code]
 
-				room.Users[sourceID] = false
+				delete(room.Users, sourceID)
 				delete(manager.Users, sourceID)
 
 			default:
