@@ -2,6 +2,7 @@ package room
 
 import (
 	"errors"
+	"log/slog"
 	"math/rand"
 	"time"
 	"unicode"
@@ -71,9 +72,11 @@ func (room *Room) UpdateStream() {
 		room.StreamState.CurrentTime += timeDelta * float64(room.StreamState.PlaybackRate)
 		room.lastUpdate = t
 	}
+	slog.Debug(string(room.Code)+" UpdateStream()", "streamState", room.StreamState)
 }
 
 func (room *Room) UpdateStreamEvent(event *Event) {
+	slog.Debug(string(room.Code)+" UpdateStreamEvent()", "event", event)
 	room.StreamState = event.GetStreamState()
 	room.lastUpdate = event.Timestamp
 	room.UpdateStream()
