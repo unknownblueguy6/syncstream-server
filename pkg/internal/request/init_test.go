@@ -11,22 +11,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// func check
-// func (resBody *InitResponseBody) UnmarshalJSON(data []byte) error {
-// 	var aux struct {
-// 		ID string `json:"id"`
-// 	}
-// 	if err := json.Unmarshal(data, &aux); err != nil {
-// 		return err
-// 	}
-// 	parsedID, err := uuid.Parse(aux.ID)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	resBody.ID = parsedID
-// 	return nil
-// }
-
 func initReqBodyToRequest(reqBody InitRequestBody) *http.Request {
 	reqBodyBytes, _ := json.Marshal(reqBody)
 	return httptest.NewRequest(http.MethodPost, "/init", bytes.NewBuffer(reqBodyBytes))
