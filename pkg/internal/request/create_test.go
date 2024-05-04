@@ -3,17 +3,13 @@ package request
 import (
 	"bytes"
 	"encoding/json"
-<<<<<<< Updated upstream
-	"syncstream-server/pkg/internal/room"
-=======
 	"net/http"
 	"net/http/httptest"
->>>>>>> Stashed changes
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
-	"syncstream-server/pkg/internal/stream"
+	"syncstream-server/pkg/internal/room"
 )
 
 // createReqBodyToRequest converts a CreateRequestBody into an *http.Request.
