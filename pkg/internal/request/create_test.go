@@ -3,21 +3,25 @@ package request
 import (
 	"bytes"
 	"encoding/json"
-	"syncstream-server/pkg/internal/stream"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
-	"net/http"
-	"net/http/httptest"
-
 	"github.com/google/uuid"
+	"syncstream-server/pkg/internal/room"
 )
 
+// createReqBodyToRequest converts a CreateRequestBody into an *http.Request.
 func createReqBodyToRequest(reqBody CreateRequestBody) *http.Request {
-	reqBodyBytes, _ := json.Marshal(reqBody)
+	reqBodyBytes, err := json.Marshal(reqBody)
+	if err != nil {
+		panic("failed to marshal request body")
+	}
 	return httptest.NewRequest(http.MethodPost, "/create", bytes.NewBuffer(reqBodyBytes))
 }
 
+// TestCreateHandler verifies the behavior of the CreateHandler under various scenarios.
 func TestCreateHandler(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -29,7 +33,7 @@ func TestCreateHandler(t *testing.T) {
 			req: createReqBodyToRequest(CreateRequestBody{
 				ID:  uuid.New(),
 				URL: "https://example.com",
-				StreamState: stream.StreamState{
+				StreamState: room.StreamState{
 					CurrentTime:  314.159,
 					Paused:       true,
 					PlaybackRate: 1.0,
@@ -41,10 +45,12 @@ func TestCreateHandler(t *testing.T) {
 				if rec.Code != http.StatusOK {
 					t.Errorf("expected status code %d, got %d", http.StatusOK, rec.Code)
 				}
-				resBody := CreateResponseBody{Code: ""}
-				err := json.NewDecoder(rec.Body).Decode(&resBody)
-				if err != nil {
+				var resBody CreateResponseBody
+				if err := json.NewDecoder(rec.Body).Decode(&resBody); err != nil {
 					t.Errorf("failed to decode response body: %v", err)
+				}
+				if resBody.Code == "" {
+					t.Errorf("expected non-empty response code")
 				}
 			},
 		},

@@ -2,7 +2,6 @@ package room
 
 import (
 	"log/slog"
-	"syncstream-server/pkg/internal/stream"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,8 +21,6 @@ type RoomManager struct {
 	Tokens    map[uuid.UUID]EphemeralTokenData
 }
 
-// TODO : update Room state every second
-
 var Manager = &RoomManager{
 	Map:       make(map[RoomCode]*Room),
 	Events:    make(chan *Event),
@@ -32,7 +29,7 @@ var Manager = &RoomManager{
 	Tokens:    make(map[uuid.UUID]EphemeralTokenData),
 }
 
-func (manager *RoomManager) AddRoom(id uuid.UUID, url string, streamState stream.StreamState, streamElement stream.StreamElement) (RoomCode, error) {
+func (manager *RoomManager) AddRoom(id uuid.UUID, url string, streamState StreamState, streamElement StreamElement) (RoomCode, error) {
 	code := generateRoomCode()
 	_, ok := manager.Map[code]
 	for ok {
@@ -55,41 +52,52 @@ func (manager *RoomManager) Run() {
 			slog.Debug("manager.Run()", "receivedEvent", *event)
 			var code RoomCode
 			var room *Room
+			var sourceID = event.SourceID
+			if _, ok := manager.UserIDMap[sourceID]; !ok {
+				manager.UserIDMap[sourceID] = uuid.New()
+			}
+			var mappedID = manager.UserIDMap[sourceID]
 
+			// get the room code and room from the event
 			switch event.Type {
 			case USER_JOIN:
 				user := event.Data["user"].(*RoomUser)
 
-				manager.Users[event.SourceID] = user
-				if _, ok := manager.UserIDMap[event.SourceID]; !ok {
-					manager.UserIDMap[event.SourceID] = uuid.New()
-				}
+				manager.Users[sourceID] = user
 
 				code = user.Code
 				room = manager.Map[code]
-				room.Users[event.SourceID] = true
+				room.Users[sourceID] = true
 
 				event.Data = nil
 
-				slog.Debug("manager.Run() USER_JOIN", "RoomStateEvent", *manager.Map[code].ToEvent(manager.UserIDMap[event.SourceID]))
-				user.Events <- manager.Map[code].ToEvent(manager.UserIDMap[event.SourceID])
+				room.UpdateStream()
+
+				roomStateEvent := manager.Map[code].ToEvent(mappedID)
+				slog.Debug("manager.Run() USER_JOIN", "RoomStateEvent", *roomStateEvent)
+				user.Events <- roomStateEvent
 
 			case USER_LEFT:
-				code = manager.Users[event.SourceID].Code
+				code = manager.Users[sourceID].Code
 				room = manager.Map[code]
 
-				room.Users[event.SourceID] = false
-				delete(manager.Users, event.SourceID)
+				delete(room.Users, sourceID)
+				delete(manager.Users, sourceID)
 
 			default:
-				code = manager.Users[event.SourceID].Code
+				code = manager.Users[sourceID].Code
 				room = manager.Map[code]
 			}
 
-			sourceID := event.SourceID
-			event.SourceID = manager.UserIDMap[sourceID]
-			slog.Debug("manager.Run()", "orig_id", sourceID, "mapped_id", event.SourceID)
+			event.SourceID = mappedID
+
+			slog.Debug("manager.Run()", "orig_id", sourceID, "mapped_id", mappedID)
 			slog.Debug("manager.Run()", "sentEvent", *event)
+
+			if event.IsStreamEvent() {
+				room.UpdateStreamEvent(event)
+			}
+
 			for userID := range room.Users {
 				if userID != sourceID {
 					slog.Debug("manager.Run() "+sourceID.String()+" Event", "destinationID", userID)

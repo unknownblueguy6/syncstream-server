@@ -1,6 +1,7 @@
 package room
 
 import (
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -36,14 +37,24 @@ func (e *Event) IsValid(id uuid.UUID) bool {
 		return false
 	case id != e.SourceID:
 		return false
-	// case e.Data != nil:
-	// 	keys := []string{}
-	// 	for k, _ := range e.Data {
-	// 		keys = append(keys, k)
-	// 	}
-	// 	slices.SortFunc[]()
+	case e.Type >= PLAY && e.Type <= SEEK:
+		_, ok := e.Data["streamState"].(map[string]any)
+		return ok
+	}
+	return true
+}
 
-	default:
-		return true
+func (e *Event) IsStreamEvent() bool {
+	return e.Type >= PLAY && e.Type <= SEEK
+}
+
+func (e *Event) GetStreamState() StreamState {
+	slog.Debug("Converting event to stream state", "event", e)
+	ss, _ := e.Data["streamState"].(map[string]any)
+	slog.Debug("ss", "ss", ss)
+	return StreamState{
+		CurrentTime:  ss["currentTime"].(float64),
+		Paused:       ss["paused"].(bool),
+		PlaybackRate: float32(ss["playbackRate"].(float64)),
 	}
 }
