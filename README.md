@@ -2,13 +2,24 @@
 
 A Golang webserver to sync video stream state among connected clients.
 
-## Objective 
+## Firefox extension
++ [Firefox Extension Repo](https://github.com/unknownblueguy6/syncstream-firefox)
+
+## Purpose 
 The primary goal of syncStream is to implement a product that enables virtual watch parties for any website with HTML5 video playback, allowing people to watch movies, TV shows, and sports events together online.
+
+## Features
+- Browser extension that clients can connect to
+- Clients can join a room and synch their video playback state with other users
+- Supports any HTML5 Video Player
+- Create Watch parties and join using a provided code
+- Following events are supported: play/pause & video seeking
+- Chat during the watch party session
 
 ## Documentation
 + [System Design & Documentation](/docs/system_design.md)
 
-### How to run
+## How to run
 1. Clone the repository
 2. In the root of the repo, run:
 ``` shell
