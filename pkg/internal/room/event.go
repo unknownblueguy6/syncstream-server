@@ -40,6 +40,9 @@ func (e *Event) IsValid(id uuid.UUID) bool {
 	case e.Type >= PLAY && e.Type <= SEEK:
 		_, ok := e.Data["streamState"].(map[string]any)
 		return ok
+	case e.Type == MESSAGE:
+		_, ok := e.Data["message"].(string)
+		return ok
 	}
 	return true
 }
