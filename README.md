@@ -29,3 +29,6 @@ go run main.go
 ## Contributing
 + [pull_request_template.md](/docs/pull_request_template.md)
 + [issue_template.md](/docs/issue_template.md)
+
+## Team Roles 
++ [TEAM.md](/docs/TEAM.md)
