@@ -21,6 +21,7 @@ The primary goal of SyncStream is to implement a product that enables virtual wa
 
 ## Prerequisites
 Go 1.22.1
+
 ## How to run
 1. Clone the repository
 2. In the root of the repo, run:
@@ -29,6 +30,10 @@ go mod download
 go run main.go
 go run main.go --debug #to run in debug mode
 ``` 
+
+## Demo
+Located at `docs/demo.mp4`
+<video src='docs/demo.mp4'>
 
 ## Contributing
 + [pull_request_template.md](/docs/pull_request_template.md)
